@@ -7,12 +7,12 @@ import (
 
 // Booking represents a confirmed appointment.
 type Booking struct {
-	ID          string
-	EventTypeID string
-	GuestName   string
-	StartTime   time.Time
-	EndTime     time.Time
-	CreatedAt   time.Time
+	ID          string    `json:"id"`
+	EventTypeID string    `json:"eventTypeId"`
+	GuestName   string    `json:"guestName"`
+	StartTime   time.Time `json:"startTime"`
+	EndTime     time.Time `json:"endTime"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 // NewBooking validates and creates a new Booking. The end time is computed

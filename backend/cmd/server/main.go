@@ -13,8 +13,7 @@ import (
 
 	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/config"
 	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/logger"
-	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/middleware"
-	"github.com/go-chi/chi/v5"
+	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/server"
 )
 
 func main() {
@@ -39,7 +38,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := run(ctx, listener, log); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := run(ctx, listener, cfg, log); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Error("server error", slog.Any("error", err))
 		os.Exit(1)
 	}
@@ -47,25 +46,8 @@ func main() {
 	log.Info("server stopped gracefully")
 }
 
-func run(ctx context.Context, listener net.Listener, log *slog.Logger) error {
-	r := chi.NewRouter()
-	r.Use(middleware.CORS(os.Getenv("CORS_ALLOWED_ORIGINS")))
-	r.Use(middleware.Logger(log))
-	r.Use(recoverer(log))
-
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		if _, err := w.Write([]byte("ok")); err != nil {
-			log.Error("failed to write health response", slog.Any("error", err))
-		}
-	})
-
-	srv := &http.Server{
-		Handler:           r,
-		ReadHeaderTimeout: 5 * time.Second,
-		WriteTimeout:      10 * time.Second,
-		IdleTimeout:       120 * time.Second,
-	}
+func run(ctx context.Context, listener net.Listener, cfg config.Config, log *slog.Logger) error {
+	srv := server.New(cfg, log)
 
 	errCh := make(chan error, 1)
 	go func() {
@@ -82,20 +64,5 @@ func run(ctx context.Context, listener net.Listener, log *slog.Logger) error {
 			return err
 		}
 		return nil
-	}
-}
-
-func recoverer(log *slog.Logger) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			defer func() {
-				if rcv := recover(); rcv != nil {
-					log.Error("panic recovered", slog.Any("panic", rcv))
-					w.WriteHeader(http.StatusInternalServerError)
-				}
-			}()
-			next.ServeHTTP(w, r)
-		}
-		return http.HandlerFunc(fn)
 	}
 }

@@ -9,12 +9,20 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRun_GracefulShutdown(t *testing.T) {
 	log := slog.New(slog.NewTextHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelError}))
+	cfg := config.Config{
+		Port:               "8080",
+		LogFormat:          "text",
+		LogLevel:           "error",
+		CORSAllowedOrigins: "http://localhost:4010",
+		OwnerTimezone:      "Europe/Moscow",
+	}
 
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
@@ -23,7 +31,7 @@ func TestRun_GracefulShutdown(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	errCh := make(chan error, 1)
 	go func() {
-		errCh <- run(ctx, listener, log)
+		errCh <- run(ctx, listener, cfg, log)
 	}()
 
 	baseURL := "http://" + listener.Addr().String()

@@ -4,10 +4,10 @@ import "fmt"
 
 // EventType describes a bookable service and its duration in minutes.
 type EventType struct {
-	ID              string
-	Name            string
-	Description     string
-	DurationMinutes int32
+	ID              string `json:"id"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	DurationMinutes int32  `json:"durationMinutes"`
 }
 
 // NewEventType validates and creates a new EventType.
