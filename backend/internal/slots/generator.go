@@ -67,7 +67,7 @@ func isToday(date, today time.Time) bool {
 
 func isTaken(slot time.Time, taken []time.Time) bool {
 	for _, t := range taken {
-		if t.Equal(slot) {
+		if t.Equal(slot) || t.UTC().Equal(slot.UTC()) {
 			return true
 		}
 	}
