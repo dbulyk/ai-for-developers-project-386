@@ -27,4 +27,4 @@ clean:
 	rm -rf bin/
 
 tools:
-	GOBIN=$(PWD)/bin go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	GOBIN=$(CURDIR)/bin go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
