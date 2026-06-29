@@ -140,8 +140,8 @@ export interface components {
              * @description Calendar date in ISO 8601 format (e.g. "2026-06-27").
              */
             date: string;
-            /** @description Free slot start times in UTC for this day. */
-            slots: string[];
+            /** @description Slots for this day in chronological order, including taken ones. */
+            slots: components["schemas"]["Slot"][];
         };
         /** @description A confirmed booking for a specific event type slot. */
         Booking: {
@@ -189,6 +189,21 @@ export interface components {
              */
             durationMinutes: number;
         };
+        /** @description A single booking slot with its availability status. */
+        Slot: {
+            /**
+             * Format: date-time
+             * @description Slot start time in UTC.
+             */
+            startTime: string;
+            /** @description Whether the slot is free or already taken. */
+            status: components["schemas"]["SlotStatus"];
+        };
+        /**
+         * @description Status of a generated slot.
+         * @enum {string}
+         */
+        SlotStatus: "free" | "taken";
         /** @description Request body for replacing an existing event type (full update). */
         UpdateEventTypeRequest: {
             name: string;

@@ -16,7 +16,13 @@ const mockEventTypes: hooks.EventType[] = [
 ];
 
 const mockAvailableDays: hooks.AvailableDay[] = [
-  { date: '2026-06-30', slots: ['2026-06-30T06:00:00Z', '2026-06-30T06:30:00Z'] },
+  {
+    date: '2026-06-30',
+    slots: [
+      { startTime: '2026-06-30T06:00:00Z', status: 'free' },
+      { startTime: '2026-06-30T06:30:00Z', status: 'taken' },
+    ],
+  },
 ];
 
 function renderBookingPage() {
@@ -119,5 +125,35 @@ describe('BookingFlow', () => {
     await waitFor(() => {
       expect(screen.getByText(/slot already taken/i)).toBeInTheDocument();
     });
+  });
+
+  it('does not open booking modal for taken slot', async () => {
+    const user = userEvent.setup();
+
+    vi.spyOn(hooks, 'usePublicEventTypes').mockReturnValue({
+      data: mockEventTypes,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof hooks.usePublicEventTypes>);
+
+    vi.spyOn(hooks, 'useSlots').mockReturnValue({
+      data: mockAvailableDays,
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    } as unknown as ReturnType<typeof hooks.useSlots>);
+
+    vi.spyOn(hooks, 'useCreateBooking').mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof hooks.useCreateBooking>);
+
+    renderBookingPage();
+
+    await user.click(screen.getByText('2026-06-30'));
+    const timeCards = screen.getAllByText(/^\d{2}:\d{2}$/);
+    await user.click(timeCards[1]);
+
+    expect(screen.queryByLabelText(/your name/i)).not.toBeInTheDocument();
   });
 });
