@@ -103,9 +103,9 @@ func (h *PublicBookingsHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // isValidSlot verifies that startTime is one of the currently generated
-// available slots for the given event type. It returns (true, false) when the
-// slot is free and valid, (false, true) when the slot is already taken, and
-// (false, false) when it is outside the available window.
+// slots for the given event type. It returns (true, false) when the slot is
+// free, (false, true) when the slot is already taken, and (false, false)
+// when it is outside the available window.
 func (h *PublicBookingsHandler) isValidSlot(et models.EventType, startTime time.Time) (bool, bool) {
 	startTime = startTime.UTC()
 	bookings := h.store.ListBookings()
@@ -119,20 +119,10 @@ func (h *PublicBookingsHandler) isValidSlot(et models.EventType, startTime time.
 	duration := time.Duration(et.DurationMinutes) * time.Minute
 	available := slots.Generate(et.ID, duration, h.tz, h.clock, taken)
 	for _, day := range available {
-		for _, slotStr := range day.Slots {
-			slot, err := time.Parse(time.RFC3339, slotStr)
-			if err != nil {
-				continue
+		for _, slot := range day.Slots {
+			if slot.StartTime.UTC().Equal(startTime) {
+				return slot.Status == "free", slot.Status == "taken"
 			}
-			if slot.Equal(startTime) {
-				return true, false
-			}
-		}
-	}
-
-	for _, t := range taken {
-		if t.UTC().Equal(startTime) {
-			return false, true
 		}
 	}
 

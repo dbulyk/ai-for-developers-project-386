@@ -18,6 +18,22 @@ func mustLocation(name string) *time.Location {
 	return loc
 }
 
+func startTimes(slots []slots.Slot) []string {
+	out := make([]string, len(slots))
+	for i, s := range slots {
+		out[i] = s.StartTime.UTC().Format(time.RFC3339)
+	}
+	return out
+}
+
+func statuses(slots []slots.Slot) []string {
+	out := make([]string, len(slots))
+	for i, s := range slots {
+		out[i] = s.Status
+	}
+	return out
+}
+
 func TestGenerate(t *testing.T) {
 	moscow := mustLocation("Europe/Moscow")
 
@@ -41,8 +57,10 @@ func TestGenerate(t *testing.T) {
 
 				// Monday 2026-06-29: 09:00-17:00 MSK -> 06:00-14:00 UTC, 9 slots.
 				require.Len(t, days[0].Slots, 9)
-				assert.Equal(t, "2026-06-29T06:00:00Z", days[0].Slots[0])
-				assert.Equal(t, "2026-06-29T14:00:00Z", days[0].Slots[8])
+				assert.Equal(t, "2026-06-29T06:00:00Z", days[0].Slots[0].StartTime.UTC().Format(time.RFC3339))
+				assert.Equal(t, "free", days[0].Slots[0].Status)
+				assert.Equal(t, "2026-06-29T14:00:00Z", days[0].Slots[8].StartTime.UTC().Format(time.RFC3339))
+				assert.Equal(t, "free", days[0].Slots[8].Status)
 
 				// Saturday 2026-07-04 is empty.
 				assert.Equal(t, "2026-07-04", days[5].Date)
@@ -60,7 +78,9 @@ func TestGenerate(t *testing.T) {
 			wantDays: 14,
 			check: func(t *testing.T, days []slots.AvailableDay) {
 				require.NotEmpty(t, days[0].Slots)
-				assert.Equal(t, "2026-06-29T14:00:00Z", days[0].Slots[len(days[0].Slots)-1])
+				last := days[0].Slots[len(days[0].Slots)-1]
+				assert.Equal(t, "2026-06-29T14:00:00Z", last.StartTime.UTC().Format(time.RFC3339))
+				assert.Equal(t, "free", last.Status)
 			},
 		},
 		{
@@ -71,7 +91,8 @@ func TestGenerate(t *testing.T) {
 			check: func(t *testing.T, days []slots.AvailableDay) {
 				// Working day has exactly one slot starting at 09:00 MSK (06:00 UTC).
 				require.Len(t, days[0].Slots, 1)
-				assert.Equal(t, "2026-06-29T06:00:00Z", days[0].Slots[0])
+				assert.Equal(t, "2026-06-29T06:00:00Z", days[0].Slots[0].StartTime.UTC().Format(time.RFC3339))
+				assert.Equal(t, "free", days[0].Slots[0].Status)
 			},
 		},
 		{
@@ -82,11 +103,12 @@ func TestGenerate(t *testing.T) {
 			check: func(t *testing.T, days []slots.AvailableDay) {
 				// 09:00 and 10:00 MSK are in the past; 11:00 MSK is first.
 				require.Len(t, days[0].Slots, 7)
-				assert.Equal(t, "2026-06-29T08:00:00Z", days[0].Slots[0])
+				assert.Equal(t, "2026-06-29T08:00:00Z", days[0].Slots[0].StartTime.UTC().Format(time.RFC3339))
+				assert.Equal(t, "free", days[0].Slots[0].Status)
 			},
 		},
 		{
-			name:     "taken slots are excluded",
+			name:     "taken slots are marked as taken",
 			now:      time.Date(2026, 6, 29, 8, 0, 0, 0, moscow),
 			duration: 60 * time.Minute,
 			taken: []time.Time{
@@ -94,14 +116,28 @@ func TestGenerate(t *testing.T) {
 			},
 			wantDays: 14,
 			check: func(t *testing.T, days []slots.AvailableDay) {
-				require.Len(t, days[0].Slots, 8)
-				assert.NotContains(t, days[0].Slots, "2026-06-29T08:00:00Z")
-				assert.Equal(t, "2026-06-29T06:00:00Z", days[0].Slots[0])
-				assert.Equal(t, "2026-06-29T14:00:00Z", days[0].Slots[7])
+				// Total 9 slots remain generated; the 11:00 MSK one is taken.
+				require.Len(t, days[0].Slots, 9)
+				starts := startTimes(days[0].Slots)
+				assert.Contains(t, starts, "2026-06-29T08:00:00Z")
+				assert.Contains(t, starts, "2026-06-29T06:00:00Z")
+				assert.Contains(t, starts, "2026-06-29T14:00:00Z")
+
+				statuses := statuses(days[0].Slots)
+				assert.Contains(t, statuses, "taken")
+				assert.Contains(t, statuses, "free")
+
+				for _, slot := range days[0].Slots {
+					expected := "free"
+					if slot.StartTime.UTC().Equal(time.Date(2026, 6, 29, 8, 0, 0, 0, time.UTC)) {
+						expected = "taken"
+					}
+					assert.Equal(t, expected, slot.Status, "slot %s", slot.StartTime.UTC().Format(time.RFC3339))
+				}
 			},
 		},
 		{
-			name:     "fully booked working day still appears with empty slots",
+			name:     "fully booked working day has all slots marked as taken",
 			now:      time.Date(2026, 6, 29, 8, 0, 0, 0, moscow),
 			duration: 60 * time.Minute,
 			taken: []time.Time{
@@ -118,7 +154,10 @@ func TestGenerate(t *testing.T) {
 			wantDays: 14,
 			check: func(t *testing.T, days []slots.AvailableDay) {
 				assert.Equal(t, "2026-06-29", days[0].Date)
-				assert.Empty(t, days[0].Slots)
+				require.Len(t, days[0].Slots, 9)
+				for _, slot := range days[0].Slots {
+					assert.Equal(t, "taken", slot.Status)
+				}
 			},
 		},
 	}

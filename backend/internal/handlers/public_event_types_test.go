@@ -74,8 +74,10 @@ func TestPublicEventTypes_GetSlots(t *testing.T) {
 	// Today is Monday: 09:00-18:00 MSK. 07:00 UTC -> 10:00 MSK, so 09:00 MSK slot has passed.
 	// Expected slots: 10:00..17:00 MSK -> 07:00..14:00 UTC (8 slots).
 	require.Len(t, got[0].Slots, 7)
-	assert.Equal(t, "2026-06-29T08:00:00Z", got[0].Slots[0])
-	assert.Equal(t, "2026-06-29T14:00:00Z", got[0].Slots[len(got[0].Slots)-1])
+	assert.Equal(t, "2026-06-29T08:00:00Z", got[0].Slots[0].StartTime.UTC().Format(time.RFC3339))
+	assert.Equal(t, "free", got[0].Slots[0].Status)
+	assert.Equal(t, "2026-06-29T14:00:00Z", got[0].Slots[len(got[0].Slots)-1].StartTime.UTC().Format(time.RFC3339))
+	assert.Equal(t, "free", got[0].Slots[len(got[0].Slots)-1].Status)
 }
 
 func TestPublicEventTypes_GetSlots_NotFound(t *testing.T) {

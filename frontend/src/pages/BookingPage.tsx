@@ -137,16 +137,19 @@ export function BookingPage() {
               <SimpleGrid cols={{ base: 3, sm: 4, md: 6 }}>
                 {selectedDay.slots.map((slot) => (
                   <Card
-                    key={slot}
+                    key={slot.startTime}
                     shadow="xs"
                     padding="sm"
                     radius="md"
                     withBorder
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => openBookingModal(slot)}
+                    style={{
+                      cursor: slot.status === 'taken' ? 'default' : 'pointer',
+                      opacity: slot.status === 'taken' ? 0.4 : 1,
+                    }}
+                    onClick={() => slot.status === 'free' && openBookingModal(slot.startTime)}
                   >
                     <Text ta="center" fw={500}>
-                      {formatSlotTime(slot)}
+                      {formatSlotTime(slot.startTime)}
                     </Text>
                   </Card>
                 ))}
