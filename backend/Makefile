@@ -1,4 +1,4 @@
-.PHONY: run build test lint fmt vet check tidy clean tools
+.PHONY: run build test lint fmt vet check tidy clean tools smoke
 
 run:
 	go run ./cmd/server
@@ -28,3 +28,6 @@ clean:
 
 tools:
 	GOBIN=$(CURDIR)/bin go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+smoke:
+	bash scripts/smoke.sh
