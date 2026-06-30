@@ -1,0 +1,13 @@
+{
+  "name": "ai-for-developers-project-386",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "husky": "^9.1.7"
+  }
+}
