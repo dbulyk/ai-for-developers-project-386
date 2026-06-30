@@ -104,10 +104,10 @@ export function BookingPage() {
         ← Back to event types
       </Anchor>
 
-      <Title mb="xs">{eventType?.name ?? 'Book a slot'}</Title>
+      <Title mb="xs" data-testid="booking-page-title">{eventType?.name ?? 'Book a slot'}</Title>
       {eventType && (
         <Group mb="xl">
-          <Badge variant="light">{eventType.durationMinutes} min</Badge>
+          <Badge variant="light" data-testid="booking-page-duration">{eventType.durationMinutes} min</Badge>
           {eventType.description && <Text c="dimmed">{eventType.description}</Text>}
         </Group>
       )}
@@ -125,6 +125,7 @@ export function BookingPage() {
                 key={day.date}
                 variant={selectedDay?.date === day.date ? 'filled' : 'outline'}
                 onClick={() => setSelectedDay(day)}
+                data-testid="day-button"
               >
                 {day.date}
               </Button>
@@ -142,6 +143,8 @@ export function BookingPage() {
                     padding="sm"
                     radius="md"
                     withBorder
+                    data-testid="slot-card"
+                    data-status={slot.status}
                     style={{
                       cursor: slot.status === 'taken' ? 'default' : 'pointer',
                       opacity: slot.status === 'taken' ? 0.4 : 1,
@@ -164,24 +167,27 @@ export function BookingPage() {
         onClose={() => setModalOpen(false)}
         title={selectedSlot ? `Book at ${formatDateTime(selectedSlot)}` : 'Book a slot'}
       >
-        <Stack>
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            <TextInput
-              label="Your name"
-              placeholder="Jane Doe"
-              required
-              {...form.getInputProps('guestName')}
-            />
-            <Group justify="flex-end" mt="md">
-              <Button variant="default" onClick={() => setModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" loading={createBooking.isPending}>
-                Confirm booking
-              </Button>
-            </Group>
-          </form>
-        </Stack>
+        <div data-testid="booking-modal">
+          <Stack>
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <TextInput
+                label="Your name"
+                placeholder="Jane Doe"
+                required
+                data-testid="guest-name-input"
+                {...form.getInputProps('guestName')}
+              />
+              <Group justify="flex-end" mt="md">
+                <Button variant="default" onClick={() => setModalOpen(false)} data-testid="cancel-booking-modal-button">
+                  Cancel
+                </Button>
+                <Button type="submit" loading={createBooking.isPending} data-testid="confirm-booking-button">
+                  Confirm booking
+                </Button>
+              </Group>
+            </form>
+          </Stack>
+        </div>
       </Modal>
     </Container>
   );

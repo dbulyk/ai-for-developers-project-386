@@ -25,7 +25,7 @@ export function EventTypesPage() {
 
   return (
     <Container py="xl">
-      <Title mb="xs">Book a Meeting</Title>
+      <Title mb="xs" data-testid="event-types-title">Book a Meeting</Title>
       <Text c="dimmed" mb="xl">
         Choose an event type to see available time slots.
       </Text>
@@ -36,17 +36,17 @@ export function EventTypesPage() {
 
       <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
         {eventTypes?.map((et) => (
-          <Card key={et.id} shadow="sm" padding="lg" radius="md" withBorder>
+          <Card key={et.id} shadow="sm" padding="lg" radius="md" withBorder data-testid="event-type-card">
             <Group justify="space-between" mb="xs">
-              <Text fw={600} size="lg">{et.name}</Text>
-              <Badge variant="light">{et.durationMinutes} min</Badge>
+              <Text fw={600} size="lg" data-testid="event-type-name">{et.name}</Text>
+              <Badge variant="light" data-testid="event-type-duration">{et.durationMinutes} min</Badge>
             </Group>
             {et.description && (
               <Text size="sm" c="dimmed" mb="md">
                 {et.description}
               </Text>
             )}
-            <Button component={Link} to={`/event-types/${et.id}`} fullWidth mt="auto">
+            <Button component={Link} to={`/event-types/${et.id}`} fullWidth mt="auto" data-testid="event-type-book-button">
               Book
             </Button>
           </Card>

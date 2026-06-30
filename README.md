@@ -1,5 +1,6 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/dbulyk/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/dbulyk/ai-for-developers-project-386/actions)
+[![Latest Release](https://img.shields.io/github/v/release/dbulyk/ai-for-developers-project-386)](https://github.com/dbulyk/ai-for-developers-project-386/releases/latest)
 
 # Calendar Booking API
 
@@ -171,7 +172,57 @@ cd frontend && npm run lint && npm run typecheck && npm test
 cd typespec && npm run compile
 ```
 
+## Релизы
+
+Проект использует [release-please](https://github.com/googleapis/release-please) и [Conventional Commits](https://www.conventionalcommits.org/).
+
+### Формат коммитов
+
+Каждый коммит должен соответствовать Conventional Commits:
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+Допустимые типы:
+
+- `feat` — новая функциональность
+- `fix` — исправление ошибки
+- `perf` — улучшение производительности
+- `docs` — документация
+- `refactor` — рефакторинг без изменения поведения
+- `test` — тесты
+- `build` — сборка, зависимости
+- `ci` — CI/CD
+- `chore` — рутинные изменения
+
+Для breaking changes используйте `!` после типа/scope или `BREAKING CHANGE:` в footer:
+
+```
+feat(api)!: change booking response format
+```
+
+### Как выпускается релиз
+
+1. После мёрджа PR в `main` workflow `release-please` сканирует историю коммитов и создаёт/обновляет release-PR.
+2. Release-PR содержит обновлённый `CHANGELOG.md` и предлагаемую версию по SemVer.
+3. После мёрджа release-PR создаётся GitHub Release и git-тег `vX.Y.Z`.
+
+### Hotfix
+
+Если в уже открытый release-PR нужно добавить срочное исправление, просто смержите новый PR в `main` — release-please автоматически допишет изменения в существующий release-PR.
+
+### Полезные ссылки
+
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [История релизов](https://github.com/dbulyk/ai-for-developers-project-386/releases)
+
 ## CI
 
 - `.github/workflows/ci.yml` — основной пайплайн: линтер и тесты бэкенда, линтер, typecheck и тесты фронтенда, компиляция TypeSpec.
 - `.github/workflows/hexlet-check.yml` — проверки от Hexlet.
+- `.github/workflows/release-please.yml` — автоматический релиз по Conventional Commits.

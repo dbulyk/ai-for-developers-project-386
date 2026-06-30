@@ -95,7 +95,7 @@ export function AdminEventTypesPage() {
     <>
       <Group justify="space-between" mb="md">
         <Title order={2}>Event Types</Title>
-        <Button onClick={openCreate}>+ New event type</Button>
+        <Button onClick={openCreate} data-testid="new-event-type-button">+ New event type</Button>
       </Group>
 
       {eventTypes && eventTypes.length === 0 && (
@@ -103,7 +103,7 @@ export function AdminEventTypesPage() {
       )}
 
       {eventTypes && eventTypes.length > 0 && (
-        <Table striped highlightOnHover withTableBorder>
+        <Table striped highlightOnHover withTableBorder data-testid="event-types-table">
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Name</Table.Th>
@@ -114,14 +114,14 @@ export function AdminEventTypesPage() {
           </Table.Thead>
           <Table.Tbody>
             {eventTypes.map((et) => (
-              <Table.Tr key={et.id}>
-                <Table.Td>{et.name}</Table.Td>
+              <Table.Tr key={et.id} data-testid="event-type-row">
+                <Table.Td data-testid="event-type-row-name">{et.name}</Table.Td>
                 <Table.Td>{et.description}</Table.Td>
                 <Table.Td>{et.durationMinutes} min</Table.Td>
                 <Table.Td>
                   <Group gap="xs">
-                    <Button size="xs" variant="light" onClick={() => openEdit(et)}>Edit</Button>
-                    <Button size="xs" color="red" variant="light" onClick={() => setDeleteTarget(et)}>Delete</Button>
+                    <Button size="xs" variant="light" onClick={() => openEdit(et)} data-testid="edit-event-type-button">Edit</Button>
+                    <Button size="xs" color="red" variant="light" onClick={() => setDeleteTarget(et)} data-testid="delete-event-type-button">Delete</Button>
                   </Group>
                 </Table.Td>
               </Table.Tr>
@@ -132,43 +132,49 @@ export function AdminEventTypesPage() {
 
       {/* Create modal */}
       <Modal opened={createOpen} onClose={() => setCreateOpen(false)} title="New Event Type">
-        <form onSubmit={form.onSubmit(handleCreate)}>
-          <Stack>
-            <TextInput label="Name" placeholder="e.g. 30-min call" required {...form.getInputProps('name')} />
-            <Textarea label="Description" placeholder="Optional description" {...form.getInputProps('description')} />
-            <NumberInput label="Duration (minutes)" min={1} required {...form.getInputProps('durationMinutes')} />
-            <Group justify="flex-end">
-              <Button variant="default" onClick={() => setCreateOpen(false)}>Cancel</Button>
-              <Button type="submit" loading={isPending}>Create</Button>
-            </Group>
-          </Stack>
-        </form>
+        <div data-testid="create-event-type-modal">
+          <form onSubmit={form.onSubmit(handleCreate)}>
+            <Stack>
+              <TextInput label="Name" placeholder="e.g. 30-min call" required data-testid="event-type-name-input" {...form.getInputProps('name')} />
+              <Textarea label="Description" placeholder="Optional description" data-testid="event-type-description-input" {...form.getInputProps('description')} />
+              <NumberInput label="Duration (minutes)" min={1} required data-testid="event-type-duration-input" {...form.getInputProps('durationMinutes')} />
+              <Group justify="flex-end">
+                <Button variant="default" onClick={() => setCreateOpen(false)}>Cancel</Button>
+                <Button type="submit" loading={isPending} data-testid="create-event-type-submit">Create</Button>
+              </Group>
+            </Stack>
+          </form>
+        </div>
       </Modal>
 
       {/* Edit modal */}
       <Modal opened={editTarget !== null} onClose={() => setEditTarget(null)} title="Edit Event Type">
-        <form onSubmit={form.onSubmit(handleUpdate)}>
-          <Stack>
-            <TextInput label="Name" required {...form.getInputProps('name')} />
-            <Textarea label="Description" {...form.getInputProps('description')} />
-            <NumberInput label="Duration (minutes)" min={1} required {...form.getInputProps('durationMinutes')} />
-            <Group justify="flex-end">
-              <Button variant="default" onClick={() => setEditTarget(null)}>Cancel</Button>
-              <Button type="submit" loading={isPending}>Save</Button>
-            </Group>
-          </Stack>
-        </form>
+        <div data-testid="edit-event-type-modal">
+          <form onSubmit={form.onSubmit(handleUpdate)}>
+            <Stack>
+              <TextInput label="Name" required data-testid="event-type-name-input" {...form.getInputProps('name')} />
+              <Textarea label="Description" data-testid="event-type-description-input" {...form.getInputProps('description')} />
+              <NumberInput label="Duration (minutes)" min={1} required data-testid="event-type-duration-input" {...form.getInputProps('durationMinutes')} />
+              <Group justify="flex-end">
+                <Button variant="default" onClick={() => setEditTarget(null)}>Cancel</Button>
+                <Button type="submit" loading={isPending} data-testid="save-event-type-submit">Save</Button>
+              </Group>
+            </Stack>
+          </form>
+        </div>
       </Modal>
 
       {/* Delete confirm modal */}
       <Modal opened={deleteTarget !== null} onClose={() => setDeleteTarget(null)} title="Delete Event Type">
-        <Text mb="md">
-          Delete <strong>{deleteTarget?.name}</strong>? This cannot be undone.
-        </Text>
-        <Group justify="flex-end">
-          <Button variant="default" onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button color="red" loading={deleteMutation.isPending} onClick={handleDelete}>Delete</Button>
-        </Group>
+        <div data-testid="delete-event-type-modal">
+          <Text mb="md">
+            Delete <strong>{deleteTarget?.name}</strong>? This cannot be undone.
+          </Text>
+          <Group justify="flex-end">
+            <Button variant="default" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button color="red" loading={deleteMutation.isPending} onClick={handleDelete} data-testid="confirm-delete-event-type">Delete</Button>
+          </Group>
+        </div>
       </Modal>
     </>
   );
