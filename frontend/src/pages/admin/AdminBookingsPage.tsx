@@ -27,14 +27,14 @@ export function AdminBookingsPage() {
 
   return (
     <>
-      <Title order={2} mb="md">Bookings</Title>
+      <Title order={2} mb="md" data-testid="bookings-title">Bookings</Title>
 
       {bookings && bookings.length === 0 && (
         <Text c="dimmed">No upcoming bookings.</Text>
       )}
 
       {bookings && bookings.length > 0 && (
-        <Table striped highlightOnHover withTableBorder>
+        <Table striped highlightOnHover withTableBorder data-testid="bookings-table">
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Guest</Table.Th>
@@ -46,13 +46,13 @@ export function AdminBookingsPage() {
           </Table.Thead>
           <Table.Tbody>
             {bookings.map((b) => (
-              <Table.Tr key={b.id}>
-                <Table.Td>{b.guestName}</Table.Td>
+              <Table.Tr key={b.id} data-testid="booking-row">
+                <Table.Td data-testid="booking-row-guest">{b.guestName}</Table.Td>
                 <Table.Td>{b.eventTypeId}</Table.Td>
                 <Table.Td>{formatDateTime(b.startTime)}</Table.Td>
                 <Table.Td>{formatDateTime(b.endTime)}</Table.Td>
                 <Table.Td>
-                  <Button size="xs" color="red" variant="light" onClick={() => setCancelTarget(b)}>
+                  <Button size="xs" color="red" variant="light" onClick={() => setCancelTarget(b)} data-testid="cancel-booking-button">
                     Cancel
                   </Button>
                 </Table.Td>
@@ -63,14 +63,16 @@ export function AdminBookingsPage() {
       )}
 
       <Modal opened={cancelTarget !== null} onClose={() => setCancelTarget(null)} title="Cancel Booking">
-        <Text mb="md">
-          Cancel booking for <strong>{cancelTarget?.guestName}</strong> at{' '}
-          {cancelTarget ? formatDateTime(cancelTarget.startTime) : ''}?
-        </Text>
-        <Group justify="flex-end">
-          <Button variant="default" onClick={() => setCancelTarget(null)}>Keep it</Button>
-          <Button color="red" loading={cancelMutation.isPending} onClick={handleCancel}>Cancel booking</Button>
-        </Group>
+        <div data-testid="cancel-booking-modal">
+          <Text mb="md">
+            Cancel booking for <strong>{cancelTarget?.guestName}</strong> at{' '}
+            {cancelTarget ? formatDateTime(cancelTarget.startTime) : ''}?
+          </Text>
+          <Group justify="flex-end">
+            <Button variant="default" onClick={() => setCancelTarget(null)}>Keep it</Button>
+            <Button color="red" loading={cancelMutation.isPending} onClick={handleCancel} data-testid="confirm-cancel-booking">Cancel booking</Button>
+          </Group>
+        </div>
       </Modal>
     </>
   );
