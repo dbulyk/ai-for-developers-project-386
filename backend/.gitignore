@@ -5,3 +5,8 @@
 *.so
 *.dylib
 .env
+
+# Embedded SPA assets are generated from the frontend build.
+# Only placeholder fixtures are tracked so that Go tests compile in a clean clone.
+/internal/assets/dist/assets/*
+!/internal/assets/dist/assets/.gitkeep

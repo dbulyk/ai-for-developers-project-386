@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/assets"
 	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/clock"
 	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/config"
 	"github.com/dbulyk/ai-for-developers-project-386/backend/internal/handlers"
@@ -44,6 +45,8 @@ func New(cfg config.Config, logger *slog.Logger) *http.Server {
 			logger.Error("failed to write health response", slog.Any("error", err))
 		}
 	})
+
+	r.Get("/*", spaHandler(assets.Dist(), logger).ServeHTTP)
 
 	return &http.Server{
 		Handler:           r,

@@ -157,6 +157,28 @@ cd ../frontend && npm run gen:api
 | `VITE_API_BASE_URL` | `http://localhost:4010` | Базовый URL API |
 | `VITE_OWNER_TIMEZONE` | `Europe/Moscow` | Таймзона владельца календаря |
 
+## Деплой
+
+Приложение поставляется как единый Docker-образ, в котором бэкенд раздаёт собранный фронтенд.
+
+```bash
+# Собрать образ
+docker build -t calendar-booking .
+
+# Запустить на порту из переменной PORT
+docker run --rm -p 8080:8080 -e PORT=8080 calendar-booking
+```
+
+Для удобства используйте `Makefile` в корне:
+
+```bash
+make build        # собрать фронтенд и бэкенд локально
+make docker-build # собрать Docker-образ
+make docker-run   # запустить контейнер на $PORT (по умолчанию 8080)
+```
+
+> **Важно:** в образе SPA и API работают на одном origin, поэтому CORS-настройка `CORS_ALLOWED_ORIGINS` актуальна в основном для локальной разработки.
+
 ## Тесты и линтеры
 
 Перед коммитом рекомендуется запустить полную проверку:

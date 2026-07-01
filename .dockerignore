@@ -1,0 +1,16 @@
+.git
+.github
+.agents
+.claude
+.husky
+e2e
+node_modules
+frontend/node_modules
+typespec/node_modules
+backend/bin
+backend/internal/assets/dist/assets/*
+!backend/internal/assets/dist/assets/.gitkeep
+*.md
+.DS_Store
+.env
+*.log
