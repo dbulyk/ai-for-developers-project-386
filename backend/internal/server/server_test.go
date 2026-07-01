@@ -59,4 +59,17 @@ func TestNew_RoutesAssembled(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 		assert.Equal(t, "http://localhost:4010", resp.Header.Get("Access-Control-Allow-Origin"))
 	})
+
+	t.Run("spa fallback serves index.html", func(t *testing.T) {
+		resp, err := http.Get(server.URL + "/admin")
+		require.NoError(t, err)
+		defer func() { _ = resp.Body.Close() }()
+
+		body, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Contains(t, string(body), `<div id="root">`)
+		assert.Contains(t, resp.Header.Get("Content-Type"), "text/html")
+	})
 }
